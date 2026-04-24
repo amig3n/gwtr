@@ -1,10 +1,8 @@
-use anyhow::{Result, Context};
-
 mod git;
-
 mod cli;
-
 mod app;
+
+use anyhow::{Result, Context};
 use crate::app::run;
 
 fn main() -> Result<()> {

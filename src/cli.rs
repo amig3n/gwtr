@@ -9,4 +9,6 @@ pub struct CLI {
     #[arg(short,long, default_value_t = 0)]
     pub verbosity: u8,
 
+    ///If arguments are provided, they will be passed through to git worktree command
+    pub command_args: Option<Vec<String>>,
 }
