@@ -3,6 +3,11 @@ use env_logger::Env;
 use log::{debug, error, info, warn};
 use std::process::Command as ShellCommand;
 
+mod cli;
+use crate::cli::CLI;
+use clap::Parser;
+
+
 struct GitWorktree {
     branch: String,
     commit: String,
@@ -92,6 +97,19 @@ fn get_worktree_list() -> anyhow::Result<Vec<GitWorktree>> {
 
 
 fn run() -> anyhow::Result<()> {
+    let arguments = CLI::parse();
+
+    let log_level = match arguments.verbosity {
+        0 => log::LevelFilter::Off,
+        1 => log::LevelFilter::Info,
+        2 => log::LevelFilter::Debug,
+        _ => log::LevelFilter::Trace,
+    };
+
+    env_logger::Builder::new()
+        .filter_level(log_level)
+        .init();
+
    let worktrees = get_worktree_list()?;
 
    if worktrees.is_empty() {
@@ -110,10 +128,8 @@ fn run() -> anyhow::Result<()> {
 }
 
 fn main() -> Result<()> {
-    env_logger::Builder::new()
-        .filter_level(log::LevelFilter::Debug)
-        .init();
-
-    run().context("Failed to run the application");
+    run()
+        .context("Failed to run the application");
+    
     Ok(())
 }
