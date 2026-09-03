@@ -7,6 +7,7 @@ import (
 // NOTE contract for git provider
 type GitProvider interface {
 	ListWorktrees() ([]GitWorktree, error)
+	AddWorktree(branch string, path string) error
 }
 
 // NOTE data model that comes straight from git provider
@@ -43,6 +44,7 @@ func NewService(git GitProvider, state StateStore) *Service {
 	}
 }
 
+// ANCHOR listing all worktrees
 func (s *Service) Init() error {
 	// init state file with current workspaces
 	err := s.state.Init()
@@ -51,7 +53,7 @@ func (s *Service) Init() error {
 	}
 
 	// get current state file
-	worktrees, err := s.git.ListWorktrees()
+worktrees, err := s.git.ListWorktrees()
 	if err != nil {	
 		return fmt.Errorf("init error: failed to list worktrees: %w", err)
 	}
@@ -123,3 +125,30 @@ func (s *Service) List() ([]AppWorktree, error) {
 	return appWorktrees, nil
 }
 
+// ANCHOR adding new worktree
+func (s *Service) Add(path string, branch string) error {
+	// load up current state
+	currentState , err := s.state.Load()
+	if err != nil {
+		return fmt.Errorf("worktree add error: state file error: %w", err)
+	}
+
+	// add git worktree
+	err = s.git.AddWorktree(branch, path)	
+	if err != nil {
+		return fmt.Errorf("worktree add error: git error: %w", err)
+	}
+
+	currentState = append(currentState, WorktreeState{
+		Path: path,
+		Deleted: false,
+	})
+
+	err = s.state.Save(currentState)
+	if err != nil {
+		return fmt.Errorf("worktree add error: state file error: %w", err)	
+	}
+		
+
+	return nil
+}

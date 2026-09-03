@@ -4,6 +4,7 @@ import (
 	"os/exec"
 	"strings"
 	"github.com/amig3n/gwtr/worktree"
+	"fmt"
 )
 
 
@@ -72,6 +73,17 @@ func (repo *GitShellWrapper) ListWorktrees() ([]worktree.GitWorktree, error) {
 	}
 
 	return worktrees, nil
+}
+
+func (repo *GitShellWrapper) AddWorktree(branch string, path string) error {
+	// execute git worktree add command
+	cmd := exec.Command("git", "worktree", "add", "-b", branch, path)
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("git-shell provider error: failed to add worktree: %w", err)
+	}
+
+	return nil
 }
 
 
