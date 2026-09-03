@@ -78,18 +78,18 @@ func (s *Service) List() ([]AppWorktree, error) {
 	// load the state file 
 	worktrees, err := s.git.ListWorktrees()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list error: failed to list worktrees: %w", err)
 	}
 
-	//load the worktree list
+	//load the state file
 	stateFile, err := s.state.Load()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list error: failed to load state file: %w", err)
 	}
 
 	// if state file is empty, it must be initialized
 	if len(stateFile) == 0 {
-		return nil, fmt.Errorf("state file is empty, please run 'gwtr init' to initialize the state file")
+		return nil, fmt.Errorf("list error: please run 'gwtr init' to initialize the state file")
 	}
 	
 	// match the gitWorktree with State using path as key
