@@ -27,6 +27,7 @@ func NewCLI(service *worktree.Service) *CLI {
 	// add subcommands
 	rootCmd.AddCommand(cli.addListCmd())
 	rootCmd.AddCommand(cli.addInitCmd())
+	rootCmd.AddCommand(cli.addAddCmd())
 	// TODO add more subcommands
 
 	return &cli
