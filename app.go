@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"log"
 	"github.com/amig3n/gwtr/cli"
+	"github.com/amig3n/gwtr/worktree"
+	"github.com/amig3n/gwtr/git"
 )
 
 type App struct {
@@ -23,9 +25,25 @@ func NewApp() *App {
 		),
 	)
 
+	// init Service
+	logger.Debug("Initializing Service")
+	gitProvider := &git.GitShellWrapper{}
+	logger.Debug("Git provider initialized: ", "provider", gitProvider)
+
+	stateStore, err := worktree.NewStateStore()
+	if err != nil {
+		logger.Error("Error initializing state store", "error", err)
+		return nil
+	}
+	logger.Debug("State store initialized: ", "store", stateStore)
+
+	appService := worktree.NewService(gitProvider, *stateStore)
+	logger.Debug("Service initialized: ", "service", appService)
+
+	// pass initiated service to CLI
 	return &App{
 		Logger: logger,
-		cli: cli.NewCLI(),
+		cli: cli.NewCLI(appService),
 	}
 }
 
@@ -37,3 +55,4 @@ func (app *App) Run() {
 		app.Logger.Error("Error executing command", "error", err)
 	}
 }
+

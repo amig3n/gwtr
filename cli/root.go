@@ -2,13 +2,15 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/amig3n/gwtr/worktree"
 )
 
 type CLI struct {
 	RootCmd *cobra.Command
+	service *worktree.Service
 }
 
-func NewCLI() *CLI {
+func NewCLI(service *worktree.Service) *CLI {
 	// init CLI
 	rootCmd := &cobra.Command{
 		Use:   "gwtr",
@@ -16,12 +18,15 @@ func NewCLI() *CLI {
 		Long:  "Go-based worktree manager for git. For anybody who works with multiple branches at one time.",
 	}
 	
+	// create CLI object with passing Service from outside
 	var cli CLI = CLI{
 		RootCmd: rootCmd,
+		service: service,
 	}
 
 	// add subcommands
 	rootCmd.AddCommand(cli.addListCmd())
+	rootCmd.AddCommand(cli.addInitCmd())
 	// TODO add more subcommands
 
 	return &cli
