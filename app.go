@@ -13,6 +13,7 @@ type App struct {
 	cli	*cli.CLI
 }
 
+// ANCHOR App constructor
 func NewApp() *App {
 	// TODO allow to use flag for debug level
 	// init whole logger with debug level
@@ -27,7 +28,7 @@ func NewApp() *App {
 
 	// init Service
 	logger.Debug("Initializing Service")
-	gitProvider := &git.GitShellWrapper{}
+	gitProvider := git.NewGitShellWrapper(logger)
 	logger.Debug("Git provider initialized: ", "provider", gitProvider)
 
 	stateStore, err := worktree.NewStateStore()
@@ -37,7 +38,7 @@ func NewApp() *App {
 	}
 	logger.Debug("State store initialized: ", "store", stateStore)
 
-	appService := worktree.NewService(gitProvider, *stateStore)
+	appService := worktree.NewService(logger, gitProvider, *stateStore)
 	logger.Debug("Service initialized: ", "service", appService)
 
 	// pass initiated service to CLI
@@ -47,6 +48,7 @@ func NewApp() *App {
 	}
 }
 
+// ANCHOR app runner
 func (app *App) Run() {
 	app.Logger.Info("GWTR started")	
 
