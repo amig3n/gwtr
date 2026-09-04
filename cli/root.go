@@ -15,7 +15,7 @@ func NewCLI(service *worktree.Service) *CLI {
 	rootCmd := &cobra.Command{
 		Use:   "gwtr",
 		Short: "GWTR",
-		Long:  "Go-based worktree manager for git. For anybody who works with multiple branches at one time.",
+		Long:  "Worktres manager for git. For anybody who works with multiple branches at one time.",
 	}
 	
 	// create CLI object with passing Service from outside

@@ -21,7 +21,7 @@ func NewApp() *App {
 		slog.NewTextHandler(
 			log.Writer(), 
 			&slog.HandlerOptions{
-				Level: slog.LevelDebug,
+				Level: slog.LevelInfo,
 			},
 		),
 	)
@@ -29,9 +29,8 @@ func NewApp() *App {
 	// init Service
 	logger.Debug("Initializing Service")
 	gitProvider := git.NewGitShellWrapper(logger)
-	logger.Debug("Git provider initialized: ", "provider", gitProvider)
 
-	stateStore, err := worktree.NewStateStore()
+	stateStore, err := worktree.NewStateStore(logger)
 	if err != nil {
 		logger.Error("Error initializing state store", "error", err)
 		return nil
@@ -50,8 +49,6 @@ func NewApp() *App {
 
 // ANCHOR app runner
 func (app *App) Run() {
-	app.Logger.Info("GWTR started")	
-
 	err := app.cli.RootCmd.Execute()
 	if err != nil {
 		app.Logger.Error("Error executing command", "error", err)

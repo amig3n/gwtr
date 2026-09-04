@@ -6,13 +6,15 @@ import (
 	"os/exec"
 	"os"
 	"strings"
+	"log/slog"
 )
 
 type StateStore struct {
+	logger *slog.Logger
 	path string
 }
 
-func NewStateStore() (*StateStore, error) {
+func NewStateStore(logger *slog.Logger) (*StateStore, error) {
 	// obtain repoistory root directory
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
@@ -24,6 +26,7 @@ func NewStateStore() (*StateStore, error) {
 	path := fmt.Sprintf("%s/.git/gwtr.json", trimmedPath)
 
 	return &StateStore{
+		logger: logger,
 		path: path,
 	}, nil
 }
