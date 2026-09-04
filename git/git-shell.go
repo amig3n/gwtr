@@ -4,7 +4,6 @@ import (
 	"os/exec"
 	"strings"
 	"github.com/amig3n/gwtr/worktree"
-	"fmt"
 	"log/slog"
 	"path"
 )
@@ -20,7 +19,7 @@ func NewGitShellWrapper(logger *slog.Logger) *GitShellWrapper {
 		logger: logger,
 	}
 }
-
+// ANCHOR helper function: parsing porcelain output from git
 func parsePorcelainOutput(output []byte) ([]worktree.GitWorktree, error) {
 	// parse the output to slice of strings
 	lines := strings.Split(string(output), "\n")
@@ -67,12 +66,17 @@ func parsePorcelainOutput(output []byte) ([]worktree.GitWorktree, error) {
 
 }
 
+// ANCHOR helper function: getting repository root path
 func (wrp *GitShellWrapper) getRepoRootPath() (string, error) {
 	wrp.logger.Debug("Getting repository root path")
 	var rootPath string
 	rootPathBytes, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
-		return "", fmt.Errorf("git-shell provider error: failed to get repository root path: %w", err)
+		wrp.logger.Error(
+			"Failed to get repository root path",
+			"error", err,
+		)
+		return "", err
 	}
 
 	rootPath = strings.TrimSpace(string(rootPathBytes))
@@ -81,6 +85,7 @@ func (wrp *GitShellWrapper) getRepoRootPath() (string, error) {
 	return rootPath, nil
 }
 
+// ANCHOR GitProvider interface implementation
 func (wrp *GitShellWrapper) ListWorktrees() ([]worktree.GitWorktree, error) {
 	// execute git worktree list command and return the output
 	// output is []Byte
@@ -95,6 +100,7 @@ func (wrp *GitShellWrapper) ListWorktrees() ([]worktree.GitWorktree, error) {
 	wrp.logger.Debug("Parsing porcelain output")
 	worktrees, err := parsePorcelainOutput(output)
 	if err != nil {
+		wrp.logger.Error("Failed to parse porcelain output", "error", err)
 		return nil, err
 	}
 
@@ -111,7 +117,11 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 	if !path.IsAbs(wtPath) {
 		repoRootPath, err := wrp.getRepoRootPath()
 		if err != nil {
-			return fmt.Errorf("git-shell provider error: failed to get repository root path: %w", err)
+			wrp.logger.Error(
+				"Failed to get repository root path",
+				"error", err,
+			)
+			return err
 		}
 
 		wtPath = path.Join(repoRootPath, wtPath)
@@ -122,9 +132,14 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 	cmd := exec.Command("git", "worktree", "add", "-b", branch, wtPath)
 	wrp.logger.Debug("Executing command", "command", cmd.String())
 
-	err := cmd.Run()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("git-shell provider error: failed to add worktree: %w", err)
+		wrp.logger.Error(
+			"Git worktree add command failed", 
+			"error", err, 
+			"output", string(output),
+		)
+		return err
 	}
 
 	return nil
