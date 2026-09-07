@@ -1,4 +1,4 @@
-package worktree
+package state
 
 import (
 	"encoding/json"
@@ -9,6 +9,13 @@ import (
 	"log/slog"
 )
 
+// NOTE data model used by the state file
+type RawState struct {
+	Path string `json:path`
+	Deleted bool `json:deleted`
+}
+
+// NOTE master object responsible for save/load rawState
 type StateStore struct {
 	logger *slog.Logger
 	path string
@@ -49,7 +56,7 @@ func (s *StateStore) Init() error {
 
 }
 
-func (s *StateStore) Load() ([]WorktreeState, error) {
+func (s *StateStore) Load() ([]RawState, error) {
 	// read the file content
 	stateFileContent, err := os.ReadFile(s.path)
 	if os.IsNotExist(err) {
@@ -59,7 +66,7 @@ func (s *StateStore) Load() ([]WorktreeState, error) {
 			return nil, fmt.Errorf("failed to initialize state file: %w", err)
 		}
 
-		return []WorktreeState{}, nil
+		return []RawState{}, nil
 	}
 
 	if err != nil {
@@ -69,8 +76,8 @@ func (s *StateStore) Load() ([]WorktreeState, error) {
 
 	// if file not found, 
 	
-	// parse the file content to a slice of WorktreeState
-	var state []WorktreeState
+	// parse the file content to a slice of RawState
+	var state []RawState
 	err = json.Unmarshal(stateFileContent, &state)
 	if err != nil {
 		return nil, err
@@ -79,7 +86,7 @@ func (s *StateStore) Load() ([]WorktreeState, error) {
 	return state, nil
 }
 
-func (s *StateStore) Save(state []WorktreeState) error {
+func (s *StateStore) Save(state []RawState) error {
 	// prepare current state as JSON
 	data, err := json.Marshal(state)
 	if err != nil {
@@ -93,7 +100,6 @@ func (s *StateStore) Save(state []WorktreeState) error {
 	}
 
 	// NOTE: consider file syncing here
-
 	// rename original file to backup
 	err = os.Rename(s.path, s.path+".backup")
 	if err != nil {
@@ -105,7 +111,6 @@ func (s *StateStore) Save(state []WorktreeState) error {
 	if err != nil {
 		return err
 	}
-
 
 	return nil
 }
