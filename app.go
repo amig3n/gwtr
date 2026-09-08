@@ -22,7 +22,7 @@ func NewApp() *App {
 		slog.NewTextHandler(
 			log.Writer(), 
 			&slog.HandlerOptions{
-				Level: slog.LevelInfo,
+				Level: slog.LevelDebug,
 			},
 		),
 	)
