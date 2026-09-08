@@ -68,7 +68,7 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 }
 
 // ANCHOR helper function: getting repository root path
-func (wrp *GitShellWrapper) getRepoRootPath() (string, error) {
+func (wrp *GitShellWrapper) GetRepoRootPath() (string, error) {
 	wrp.logger.Debug("Getting repository root path")
 	var rootPath string
 	rootPathBytes, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
@@ -116,7 +116,7 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 
 	// determine if path is absolute or relative, if relative, convert to absolute
 	if !path.IsAbs(wtPath) {
-		repoRootPath, err := wrp.getRepoRootPath()
+		repoRootPath, err := wrp.GetRepoRootPath()
 		if err != nil {
 			wrp.logger.Error(
 				"Failed to get repository root path",

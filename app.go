@@ -30,8 +30,15 @@ func NewApp() *App {
 	// init Service
 	logger.Debug("Initializing Service")
 	gitProvider := git.NewGitShellWrapper(logger)
+	statePath, err := gitProvider.GetRepoRootPath() 
+	if err != nil {
+		logger.Error("Error getting repository root path", "error", err)
+		return nil
+	}
 
-	stateStore, err := state.NewJsonStateStore("state.json", logger)
+	statePath = statePath + "/.git/gwtr.json"
+
+	stateStore, err := state.NewJsonStateStore(statePath, logger)
 	if err != nil {
 		logger.Error("Error initializing state store", "error", err)
 		return nil
