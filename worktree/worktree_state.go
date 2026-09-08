@@ -1,5 +1,9 @@
 package worktree
 
+import (
+	"fmt"
+)
+
 // NOTE prepared state created from combining statefile and Git info
 type WorktreeState struct {
 	items []Worktree

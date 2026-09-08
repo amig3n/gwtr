@@ -8,6 +8,6 @@ type Worktree struct {
 	Deleted bool
 }
 
-func (wt *worktree) Delete() {
+func (wt *Worktree) Delete() {
 	wt.Deleted = true
 }
