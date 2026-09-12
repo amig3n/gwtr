@@ -36,7 +36,8 @@ func NewApp() *App {
 		return nil
 	}
 
-	statePath = statePath + "/.git/gwtr.json"
+	// NOTE state file location, based on git repository root path
+	statePath = statePath + "/gwtr.json"
 
 	stateStore, err := state.NewJsonStateStore(statePath, logger)
 	if err != nil {
