@@ -33,7 +33,7 @@ func NewApp() *App {
 	statePath, err := gitProvider.GetRepoRootPath() 
 	if err != nil {
 		logger.Error("Error getting repository root path", "error", err)
-		return nil
+		panic(err)
 	}
 
 	// NOTE state file location, based on git repository root path
