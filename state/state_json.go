@@ -1,38 +1,32 @@
-package worktree
+package state
 
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"os"
-	"strings"
 	"log/slog"
+	// imports StateStore and RawState from service package to avoid circular dependency
+	"github.com/amig3n/gwtr/service"
 )
 
-type StateStore struct {
-	logger *slog.Logger
+type JsonStateStore struct {
 	path string
+	logger *slog.Logger
 }
 
-func NewStateStore(logger *slog.Logger) (*StateStore, error) {
-	// obtain repoistory root directory
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		return nil, err
-	}
-	// parse the bytes stream to proper path
-	parsedPath := string(out)
-	trimmedPath := strings.TrimSuffix(parsedPath, "\n")
-	path := fmt.Sprintf("%s/.git/gwtr.json", trimmedPath)
+func NewJsonStateStore(path string, logger *slog.Logger) (*JsonStateStore, error) {
+	
+	// TODO check if given path is valid
 
-	return &StateStore{
-		logger: logger,
+	return &JsonStateStore{
 		path: path,
+		logger: logger,
 	}, nil
 }
 
+
 // NOTE create blank file if not exists, otherwise do nothing
-func (s *StateStore) Init() error {
+func (s *JsonStateStore) Init() error {
 	_, err := os.Stat(s.path)	
 	if os.IsNotExist(err) {
 		// create the file
@@ -41,15 +35,12 @@ func (s *StateStore) Init() error {
 			return fmt.Errorf("failed to initialize state file: %w", err)
 		}
 		defer file.Close()
-
-
 	}
 
 	return nil
-
 }
 
-func (s *StateStore) Load() ([]WorktreeState, error) {
+func (s *JsonStateStore) Load() ([]service.RawState, error) {
 	// read the file content
 	stateFileContent, err := os.ReadFile(s.path)
 	if os.IsNotExist(err) {
@@ -59,18 +50,16 @@ func (s *StateStore) Load() ([]WorktreeState, error) {
 			return nil, fmt.Errorf("failed to initialize state file: %w", err)
 		}
 
-		return []WorktreeState{}, nil
+		return []service.RawState{}, nil
 	}
 
 	if err != nil {
 		return nil, err
 	}
 	
-
 	// if file not found, 
-	
-	// parse the file content to a slice of WorktreeState
-	var state []WorktreeState
+	// parse the file content to a slice of RawState
+	var state []service.RawState
 	err = json.Unmarshal(stateFileContent, &state)
 	if err != nil {
 		return nil, err
@@ -79,7 +68,7 @@ func (s *StateStore) Load() ([]WorktreeState, error) {
 	return state, nil
 }
 
-func (s *StateStore) Save(state []WorktreeState) error {
+func (s *JsonStateStore) Save(state []service.RawState) error {
 	// prepare current state as JSON
 	data, err := json.Marshal(state)
 	if err != nil {
@@ -93,7 +82,6 @@ func (s *StateStore) Save(state []WorktreeState) error {
 	}
 
 	// NOTE: consider file syncing here
-
 	// rename original file to backup
 	err = os.Rename(s.path, s.path+".backup")
 	if err != nil {
@@ -105,7 +93,6 @@ func (s *StateStore) Save(state []WorktreeState) error {
 	if err != nil {
 		return err
 	}
-
 
 	return nil
 }
