@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/amig3n/gwtr/output"
 	"fmt"
 )
 
@@ -17,9 +18,27 @@ func (cli *CLI) addListCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Printf("Worktrees:\n")
-			fmt.Printf("%v\n", wtList)
-			// pass the result to the output generator
+			headers := []string{"ID", "PATH", "BRANCH", "DELETED"}
+
+			// create new table with offset of 2 chars
+			table := output.NewTable(headers, 2)
+
+			for index, wt := range wtList.Items() {
+				err := table.AddRow(
+					[]string{
+						fmt.Sprintf("%d", index),
+						wt.Path,
+						wt.Branch,
+						fmt.Sprintf("%t", wt.Deleted),
+					},
+				)
+				if err != nil {
+					return err
+				}
+			}
+
+			table.Render()
+
 			return nil
 		},
 	}
