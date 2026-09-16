@@ -14,8 +14,8 @@ type GitWorktree struct {
 
 // NOTE data model used by the state file
 type RawState struct {
-	Path string `json:path`
-	Deleted bool `json:deleted`
+	Path    string `json:"path"`
+	Deleted bool   `json:"deleted"`
 }
 
 // NOTE contract for git provider
