@@ -28,6 +28,7 @@ func NewCLI(service *service.Service) *CLI {
 	rootCmd.AddCommand(cli.addListCmd())
 	rootCmd.AddCommand(cli.addInitCmd())
 	rootCmd.AddCommand(cli.addAddCmd())
+	rootCmd.AddCommand(cli.addRemoveCmd())
 	// TODO add more subcommands
 
 	return &cli

@@ -147,6 +147,20 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 }
 
 func (wrp *GitShellWrapper) DeleteWorktree(wtPath string) error {
+	wrp.logger.Debug("Deleting worktree", "path", wtPath)
+	// TODO check if given path exists, if not - early fail
+	cmd := exec.Command("git","worktree", "remove", wtPath)
+	wrp.logger.Debug("Executing command", "command" , cmd.String())
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		wrp.logger.Error("Git worktree remove command failure",
+			"error", err,
+			"output", string(output),
+		)
+		return err
+	}
+
 	return nil
 }
 
