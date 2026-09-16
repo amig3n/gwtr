@@ -2,15 +2,15 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/amig3n/gwtr/worktree"
+	"github.com/amig3n/gwtr/service"
 )
 
 type CLI struct {
 	RootCmd *cobra.Command
-	service *worktree.Service
+	service *service.Service
 }
 
-func NewCLI(service *worktree.Service) *CLI {
+func NewCLI(service *service.Service) *CLI {
 	// init CLI
 	rootCmd := &cobra.Command{
 		Use:   "gwtr",
@@ -28,6 +28,7 @@ func NewCLI(service *worktree.Service) *CLI {
 	rootCmd.AddCommand(cli.addListCmd())
 	rootCmd.AddCommand(cli.addInitCmd())
 	rootCmd.AddCommand(cli.addAddCmd())
+	rootCmd.AddCommand(cli.addRemoveCmd())
 	// TODO add more subcommands
 
 	return &cli

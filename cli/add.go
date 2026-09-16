@@ -2,7 +2,9 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/amig3n/gwtr/worktree"
 )
+
 
 func (cli *CLI) addAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -10,6 +12,7 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 		Short: "Add new worktree",
 		Long:  "Add new worktree",
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			branch, err := cmd.Flags().GetString("branch")
 			if err != nil {
 				return err
@@ -20,10 +23,25 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 				return err
 			}
 
-			err = cli.service.Add(branch, path)
+			// load state
+			state, err := cli.service.LoadState()
 			if err != nil {
 				return err
 			}
+			
+			// perform addition
+			state.Add(worktree.Worktree{
+				Branch: branch,
+				Path: path,
+				Deleted: false,
+			})
+
+			// save state
+			err = cli.service.SaveState(state)
+			if err != nil {
+				return err
+			}
+
 			return nil
 		},
 	}

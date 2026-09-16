@@ -3,9 +3,9 @@ package git
 import (
 	"os/exec"
 	"strings"
-	"github.com/amig3n/gwtr/worktree"
 	"log/slog"
 	"path"
+	"github.com/amig3n/gwtr/service"
 )
 
 
@@ -20,13 +20,13 @@ func NewGitShellWrapper(logger *slog.Logger) *GitShellWrapper {
 	}
 }
 // ANCHOR helper function: parsing porcelain output from git
-func parsePorcelainOutput(output []byte) ([]worktree.GitWorktree, error) {
+func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 	// parse the output to slice of strings
 	lines := strings.Split(string(output), "\n")
 
 	// prepare required resources
-	var worktrees []worktree.GitWorktree
-	var currentWorktree worktree.GitWorktree
+	var worktrees []service.GitWorktree
+	var currentWorktree service.GitWorktree
 	var inBlock bool = false
 
 	// parse the lines to slice of GitWorktree
@@ -35,7 +35,7 @@ func parsePorcelainOutput(output []byte) ([]worktree.GitWorktree, error) {
 		if line == "" {
 			if inBlock {
 				worktrees = append(worktrees, currentWorktree)
-				currentWorktree = worktree.GitWorktree{}
+				currentWorktree = service.GitWorktree{}
 				inBlock = false
 			}
 			continue
@@ -51,10 +51,11 @@ func parsePorcelainOutput(output []byte) ([]worktree.GitWorktree, error) {
 			inBlock = true
 		}
 
-		if strings.HasPrefix(line, "HEAD ") {
-			currentWorktree.Commit = strings.TrimPrefix(line, "HEAD ")
-			inBlock = true
-		}
+		// NOTE capturing commit not needed, leaving for reference
+		//if strings.HasPrefix(line, "HEAD ") {
+		//	currentWorktree.Commit = strings.TrimPrefix(line, "HEAD ")
+		//	inBlock = true
+		//}
 	}
 
 	// close active block if present
@@ -67,10 +68,10 @@ func parsePorcelainOutput(output []byte) ([]worktree.GitWorktree, error) {
 }
 
 // ANCHOR helper function: getting repository root path
-func (wrp *GitShellWrapper) getRepoRootPath() (string, error) {
+func (wrp *GitShellWrapper) GetRepoRootPath() (string, error) {
 	wrp.logger.Debug("Getting repository root path")
 	var rootPath string
-	rootPathBytes, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	rootPathBytes, err := exec.Command("git", "rev-parse", "--git-common-dir").Output()
 	if err != nil {
 		wrp.logger.Error(
 			"Failed to get repository root path",
@@ -86,7 +87,7 @@ func (wrp *GitShellWrapper) getRepoRootPath() (string, error) {
 }
 
 // ANCHOR GitProvider interface implementation
-func (wrp *GitShellWrapper) ListWorktrees() ([]worktree.GitWorktree, error) {
+func (wrp *GitShellWrapper) ListWorktrees() ([]service.GitWorktree, error) {
 	// execute git worktree list command and return the output
 	// output is []Byte
 	output, err := exec.Command("git", "worktree", "list", "--porcelain").Output()
@@ -115,7 +116,7 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 
 	// determine if path is absolute or relative, if relative, convert to absolute
 	if !path.IsAbs(wtPath) {
-		repoRootPath, err := wrp.getRepoRootPath()
+		repoRootPath, err := wrp.GetRepoRootPath()
 		if err != nil {
 			wrp.logger.Error(
 				"Failed to get repository root path",
@@ -145,4 +146,21 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 	return nil
 }
 
+func (wrp *GitShellWrapper) DeleteWorktree(wtPath string) error {
+	wrp.logger.Debug("Deleting worktree", "path", wtPath)
+	// TODO check if given path exists, if not - early fail
+	cmd := exec.Command("git","worktree", "remove", wtPath)
+	wrp.logger.Debug("Executing command", "command" , cmd.String())
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		wrp.logger.Error("Git worktree remove command failure",
+			"error", err,
+			"output", string(output),
+		)
+		return err
+	}
+
+	return nil
+}
 
