@@ -24,16 +24,18 @@ func (cli *CLI) addListCmd() *cobra.Command {
 			table := output.NewTable(headers, 2)
 
 			for index, wt := range wtList.Items() {
-				err := table.AddRow(
-					[]string{
-						fmt.Sprintf("%d", index),
-						wt.Path,
-						wt.Branch,
-						fmt.Sprintf("%t", wt.Deleted),
-					},
-				)
-				if err != nil {
-					return err
+				if !wt.Deleted {
+					err := table.AddRow(
+						[]string{
+							fmt.Sprintf("%d", index),
+							wt.Path,
+							wt.Branch,
+							fmt.Sprintf("%t", wt.Deleted),
+						},
+					)
+					if err != nil {
+						return err
+					}
 				}
 			}
 
