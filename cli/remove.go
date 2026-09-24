@@ -37,8 +37,6 @@ func (cli *CLI) addRemoveCmd() *cobra.Command {
 			// perform deletion
 			worktree.Delete()
 			
-			// TODO perform state sanitization - clear all deleted objects from the end of list
-			
 			// save state
 			err = cli.service.SaveState(state)
 			if err != nil {

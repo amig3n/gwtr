@@ -122,10 +122,22 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 		wtPath = path.Join(repoRootPath, wtPath)
 	}
 
-	// TODO check if given branch already exists, and throw error if so
-	//checkBranchCmd := exec.Command("git", "rev-parse", "--quiet", "--verify", branch)
+	var cmd *exec.Cmd
 
-	cmd := exec.Command("git", "worktree", "add", "-b", branch, wtPath)
+	// TODO check if given branch already exists, and throw error if so
+	checkBranchCmd := exec.Command("git", "show-ref", "--heads", branch, "--quiet")
+	wrp.logger.Debug("Checking if branch exists", "command", checkBranchCmd.String())
+	branchNotExist := checkBranchCmd.Run()
+
+	// check if branch already exists, if so - add worktree without creating new branch
+	if branchNotExist == nil {
+		wrp.logger.Debug("Branch already exists, adding worktree and creating new branch", "branch", branch)
+		cmd = exec.Command("git", "worktree", "add", wtPath, branch)
+	} else {
+		wrp.logger.Debug("Branch does not exist, adding worktree with checkout", "branch", branch)
+		cmd = exec.Command("git", "worktree", "add", "-b", branch, wtPath)
+	}
+
 	wrp.logger.Debug("Executing command", "command", cmd.String())
 
 	output, err := cmd.CombinedOutput()
