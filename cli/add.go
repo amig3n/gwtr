@@ -43,11 +43,11 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 			})
 
 			// save state
-//			err = cli.service.SaveState(state)
-//			if err != nil {
-//				return err
-//			}
-//
+			err = cli.service.SaveState(state)
+			if err != nil {
+				return err
+			}
+
 			return nil
 		},
 	}

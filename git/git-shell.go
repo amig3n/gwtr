@@ -50,12 +50,6 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 			currentWorktree.Branch = strings.TrimPrefix(line, "branch refs/heads/")
 			inBlock = true
 		}
-
-		// NOTE capturing commit not needed, leaving for reference
-		//if strings.HasPrefix(line, "HEAD ") {
-		//	currentWorktree.Commit = strings.TrimPrefix(line, "HEAD ")
-		//	inBlock = true
-		//}
 	}
 
 	// close active block if present
@@ -64,7 +58,6 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 	}
 
 	return worktrees, nil
-
 }
 
 // ANCHOR helper function: getting repository root path
