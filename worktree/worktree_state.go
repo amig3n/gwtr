@@ -60,19 +60,23 @@ func (ws *WorktreeState) GetByString(id string) (*Worktree, error) {
 	return nil, fmt.Errorf("worktree get error: no worktree found with path or branch '%s'", id)
 }
 
-// clean all deleted worktrees from the end of the state file
-func (ws *WorktreeState) CleanDeleted() {
+// clean all deleted worktrees from the end of the state file (returns the number of deleted worktrees)
+func (ws *WorktreeState) CleanDeleted() int {
 	stateLength := len(ws.items)
 
+	deletedCount := 0
 	// iterate from the end of slice till first non-deleted WT found
 	for i := stateLength - 1; i >= 0; i-- {
 		if ws.items[i].Deleted {
 			// drop the last element from the slice
 			ws.items = ws.items[:i]
+			deletedCount++
 		} else {
 			break
 		}
 	}
+
+	return deletedCount
 }
 
 

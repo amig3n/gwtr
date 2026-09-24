@@ -25,7 +25,7 @@ func NewWorktree(path string) (*Worktree, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to get current working directory: %v", err)
 		}
-		path = path.Join(cwd, path)
+		path = filepath.Join(cwd, path)
 	}
 
 	// return object

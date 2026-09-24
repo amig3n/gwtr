@@ -71,7 +71,7 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 func (wrp *GitShellWrapper) GetRepoRootPath() (string, error) {
 	wrp.logger.Debug("Getting repository root path")
 	var rootPath string
-	rootPathBytes, err := exec.Command("git", "rev-parse", "--git-common-dir").Output()
+	rootPathBytes, err := exec.Command("git", "rev-parse", "--absolute-git-dir").Output()
 	if err != nil {
 		wrp.logger.Error(
 			"Failed to get repository root path",
@@ -125,10 +125,12 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 			return err
 		}
 
+		// this should return absolute path for the worktree
 		wtPath = path.Join(repoRootPath, wtPath)
 	}
 
-	// TODO check if given branch already exists, if yes, return error
+	// TODO check if given branch already exists, and throw error if so
+	//checkBranchCmd := exec.Command("git", "rev-parse", "--quiet", "--verify", branch)
 
 	cmd := exec.Command("git", "worktree", "add", "-b", branch, wtPath)
 	wrp.logger.Debug("Executing command", "command", cmd.String())
