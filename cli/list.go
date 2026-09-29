@@ -24,6 +24,7 @@ func (cli *CLI) addListCmd() *cobra.Command {
 			table := output.NewTable(headers, 2)
 
 			for index, wt := range wtList.Items() {
+				// do not display things that are merked as deleted in state
 				if !wt.Deleted {
 					err := table.AddRow(
 						[]string{

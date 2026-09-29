@@ -40,7 +40,7 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 				Branch: branch,
 				Path: sanitizedPath,
 				Deleted: false,
-			})
+			}, true) // entries here can be overriden
 
 			// save state
 			err = cli.service.SaveState(state)

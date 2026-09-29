@@ -19,15 +19,17 @@ func (ws *WorktreeState) Items() []Worktree {
 	return ws.items
 }
 
-func (ws *WorktreeState) Add(item Worktree) {
-	//for i, wt := range ws.items {
-	//	if wt.Deleted {
-	//		// reuse the free index with early return
-	//		ws.items[i] = item
-	//		wt.Deleted = false
-	//		return
-	//	}
-	//}
+func (ws *WorktreeState) Add(item Worktree, reuseDeleted bool) {
+	if reuseDeleted {
+		for i, wt := range ws.items {
+			if wt.Deleted {
+				// reuse the free index with early return
+				ws.items[i] = item
+				wt.Deleted = false
+				return
+			}
+		}
+	}
 	// simple appending of item to state if no free index is available
 	ws.items = append(ws.items, item)
 }

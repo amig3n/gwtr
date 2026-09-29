@@ -8,7 +8,7 @@ import (
 
 func (cli *CLI) addRemoveCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "remove <wt_index|wt_branch|wt_path>",
+		Use:   "remove <index|branch|path>",
 		Short: "Remove existing worktree",
 		Long:  "Remove currently existing worktree based on passed identifier",
 		Args:  cobra.ExactArgs(1),

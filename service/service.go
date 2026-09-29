@@ -44,7 +44,8 @@ func CombineState(worktrees []GitWorktree, rawState []RawState) (worktree.Worktr
 		}
 
 		// add to combined state
-		combinedState.Add(worktree)
+		// NOTE do not override deleted entries here to avoid breaking the indexing order
+		combinedState.Add(worktree, false)
 	}
 
 	//TODO check if any WT from git is not connected with statefile
