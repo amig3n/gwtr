@@ -166,9 +166,11 @@ func (s *Service) SaveState(state worktree.WorktreeState) error {
 
 		// if not exists in git and not marked as deleted - panic
 		if !existsInGit && wt.Deleted {
-			s.logger.Error("Save state error: worktree marked as deleted in state but does not exist in git", "path", wt.Path)
-			// TODO this panic should be replaced with state fixing underneath
-			panic("Save state error: state corrupted")
+//			s.logger.Error("Save state error: worktree marked as deleted in state but does not exist in git", "path", wt.Path)
+//			// TODO this panic should be replaced with state fixing underneath
+//			panic("Save state error: state corrupted")
+			s.logger.Debug("save state: git worktree: worktree already deleted. Skipping...", "path", wt.Path)
+			continue
 		}
 	}
 
