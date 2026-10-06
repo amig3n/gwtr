@@ -19,8 +19,18 @@ func (ws *WorktreeState) Items() []Worktree {
 	return ws.items
 }
 
-func (ws *WorktreeState) Add(item Worktree) {
-	// simple appending of item to state
+func (ws *WorktreeState) Add(item Worktree, reuseDeleted bool) {
+	if reuseDeleted {
+		for i, wt := range ws.items {
+			if wt.Deleted {
+				// reuse the free index with early return
+				ws.items[i] = item
+				wt.Deleted = false
+				return
+			}
+		}
+	}
+	// simple appending of item to state if no free index is available
 	ws.items = append(ws.items, item)
 }
 
@@ -45,12 +55,31 @@ func (ws *WorktreeState) GetByID(id int) (*Worktree, error) {
 }
 
 func (ws *WorktreeState) GetByString(id string) (*Worktree, error) {
-	for _, item := range ws.items {
-		if item.Path == id || item.Branch == id {
-			return &item, nil
+	for index := range ws.items {
+		if ws.items[index].Path == id || ws.items[index].Branch == id {
+			return &ws.items[index], nil
 		}
 	}
 	return nil, fmt.Errorf("worktree get error: no worktree found with path or branch '%s'", id)
+}
+
+// clean all deleted worktrees from the end of the state file (returns the number of deleted worktrees)
+func (ws *WorktreeState) CleanDeleted() int {
+	stateLength := len(ws.items)
+
+	deletedCount := 0
+	// iterate from the end of slice till first non-deleted WT found
+	for i := stateLength - 1; i >= 0; i-- {
+		if ws.items[i].Deleted {
+			// drop the last element from the slice
+			ws.items = ws.items[:i]
+			deletedCount++
+		} else {
+			break
+		}
+	}
+
+	return deletedCount
 }
 
 

@@ -50,12 +50,6 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 			currentWorktree.Branch = strings.TrimPrefix(line, "branch refs/heads/")
 			inBlock = true
 		}
-
-		// NOTE capturing commit not needed, leaving for reference
-		//if strings.HasPrefix(line, "HEAD ") {
-		//	currentWorktree.Commit = strings.TrimPrefix(line, "HEAD ")
-		//	inBlock = true
-		//}
 	}
 
 	// close active block if present
@@ -64,14 +58,13 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 	}
 
 	return worktrees, nil
-
 }
 
 // ANCHOR helper function: getting repository root path
 func (wrp *GitShellWrapper) GetRepoRootPath() (string, error) {
 	wrp.logger.Debug("Getting repository root path")
 	var rootPath string
-	rootPathBytes, err := exec.Command("git", "rev-parse", "--git-common-dir").Output()
+	rootPathBytes, err := exec.Command("git", "rev-parse", "--absolute-git-dir").Output()
 	if err != nil {
 		wrp.logger.Error(
 			"Failed to get repository root path",
@@ -125,12 +118,26 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 			return err
 		}
 
+		// this should return absolute path for the worktree
 		wtPath = path.Join(repoRootPath, wtPath)
 	}
 
-	// TODO check if given branch already exists, if yes, return error
+	var cmd *exec.Cmd
 
-	cmd := exec.Command("git", "worktree", "add", "-b", branch, wtPath)
+	// TODO check if given branch already exists, and throw error if so
+	checkBranchCmd := exec.Command("git", "show-ref", "--heads", branch, "--quiet")
+	wrp.logger.Debug("Checking if branch exists", "command", checkBranchCmd.String())
+	branchNotExist := checkBranchCmd.Run()
+
+	// check if branch already exists, if so - add worktree without creating new branch
+	if branchNotExist == nil {
+		wrp.logger.Debug("Branch already exists, adding worktree and creating new branch", "branch", branch)
+		cmd = exec.Command("git", "worktree", "add", wtPath, branch)
+	} else {
+		wrp.logger.Debug("Branch does not exist, adding worktree with checkout", "branch", branch)
+		cmd = exec.Command("git", "worktree", "add", "-b", branch, wtPath)
+	}
+
 	wrp.logger.Debug("Executing command", "command", cmd.String())
 
 	output, err := cmd.CombinedOutput()

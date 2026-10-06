@@ -28,13 +28,19 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			// perform path normalization and validation
+			sanitizedPath, err := cli.service.SanitizePath(path)
+			if err != nil {
+				return err
+			}
 			
 			// perform addition
 			state.Add(worktree.Worktree{
 				Branch: branch,
-				Path: path,
+				Path: sanitizedPath,
 				Deleted: false,
-			})
+			}, true) // entries here can be overriden
 
 			// save state
 			err = cli.service.SaveState(state)
