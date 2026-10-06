@@ -55,9 +55,9 @@ func (ws *WorktreeState) GetByID(id int) (*Worktree, error) {
 }
 
 func (ws *WorktreeState) GetByString(id string) (*Worktree, error) {
-	for _, item := range ws.items {
-		if item.Path == id || item.Branch == id {
-			return &item, nil
+	for index := range ws.items {
+		if ws.items[index].Path == id || ws.items[index].Branch == id {
+			return &ws.items[index], nil
 		}
 	}
 	return nil, fmt.Errorf("worktree get error: no worktree found with path or branch '%s'", id)
