@@ -21,11 +21,11 @@ func (ws *WorktreeState) Items() []Worktree {
 
 func (ws *WorktreeState) Add(item Worktree, reuseDeleted bool) {
 	if reuseDeleted {
-		for i, wt := range ws.items {
-			if wt.Deleted {
+		for i := range ws.items {
+			if ws.items[i].Deleted {
 				// reuse the free index with early return
 				ws.items[i] = item
-				wt.Deleted = false
+				ws.items[i].Deleted = false
 				return
 			}
 		}
