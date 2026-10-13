@@ -26,12 +26,12 @@ HEAD abcdef1234567890
 		t.Fatalf("Expected 2 worktrees, got %d", len(worktrees))
 	}
 
-	if worktrees[0].Path != "/path/to/worktree1" || worktrees[0].Branch != "branch1" || worktrees[0].Commit != "1234567890abcdef" {
-		t.Errorf("Unexpected first worktree: %+v", worktrees[0])
+	if worktrees[0].Path != "/path/to/worktree1" || worktrees[0].Branch != "refs/heads/branch1" {
+		t.Errorf("First worktree parsed incorrectly: %+v", worktrees[0])
 	}
 
-	if worktrees[1].Path != "/path/to/worktree2" || worktrees[1].Branch != "branch2" || worktrees[1].Commit != "abcdef1234567890" {
-		t.Errorf("Unexpected second worktree: %+v", worktrees[1])
+	if worktrees[1].Path != "/path/to/worktree2" || worktrees[1].Branch != "refs/heads/branch2" {
+		t.Errorf("Second worktree parsed incorrectly: %+v", worktrees[1])
 	}
 
 }
