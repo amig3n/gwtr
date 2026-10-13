@@ -18,7 +18,7 @@ func TestPathNormalization(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result, err := service.NormalizeAndValidatePath(test.input)
+		result, err := service.SanitizePath(test.input)
 		if err != nil {
 			t.Errorf("Unexpected error for input '%s': %v", test.input, err)
 			continue

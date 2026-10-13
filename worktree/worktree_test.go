@@ -13,7 +13,7 @@ func TestWorktreeStateAdd(t *testing.T) {
 		Deleted: false,
 	}
 
-	state.Add(worktree1)
+	state.Add(worktree1, false)
 
 	if len(state.Items()) != 1 {
 		t.Errorf("Expected 1 worktree in state, got %d", len(state.Items()))
@@ -33,7 +33,7 @@ func TestWorktreeStateReuseIndex(t *testing.T) {
 
 	// add a new worktree, which should reuse the index of the deleted worktree
 	newWorktree := Worktree{Path: "path4", Branch: "branch4", Deleted: false}
-	worktreeState.Add(newWorktree)
+	worktreeState.Add(newWorktree, true)
 
 	// check the length of the state after addition
 	if len(worktreeState.Items()) != 3 {
@@ -60,11 +60,11 @@ func TestWorktreeStateClean(t *testing.T) {
 	wt5 := Worktree{Path: "path5", Branch: "branch5", Deleted: true} // should be deleted
 
 	// add worktrees to state
-	state.Add(wt1)
-	state.Add(wt2)
-	state.Add(wt3)
-	state.Add(wt4)
-	state.Add(wt5)
+	state.Add(wt1, true)
+	state.Add(wt2, true)
+	state.Add(wt3, true)
+	state.Add(wt4, true)
+	state.Add(wt5, true)
 
 	// perform cleaning of deleted worktrees
 	state.CleanDeleted()
