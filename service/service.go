@@ -34,7 +34,6 @@ func CombineState(worktrees []GitWorktree, rawState []RawState) (worktree.Worktr
 			Branch: "",
 		}
 
-		// do not add any infos if wt is marked as deleted
 		// add proper infos from git
 		for _, gitWt := range worktrees {
 			if gitWt.Path == wt.Path {
