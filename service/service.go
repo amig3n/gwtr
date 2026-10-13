@@ -1,13 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"log/slog"
-	"github.com/amig3n/gwtr/worktree"
 	"os"
 	"path/filepath"
+
+	"github.com/amig3n/gwtr/worktree"
 )
-
-
 
 // NOTE infrastructure-based composition root
 type Service struct {
@@ -74,6 +74,12 @@ func (s *Service) InitState() error {
 	}
 
 	s.logger.Debug("Initial state prepared", "wt_count", len(initialState))
+
+	err = s.state.Init()
+	if err != nil {
+		s.logger.Error("Failed to initialize state file", "error", err)
+		return err
+	}
 
 	// transform git worktrees to raw state as it goes
 	err = s.state.Save(initialState)
@@ -166,9 +172,6 @@ func (s *Service) SaveState(state worktree.WorktreeState) error {
 
 		// if not exists in git and not marked as deleted - panic
 		if !existsInGit && wt.Deleted {
-//			s.logger.Error("Save state error: worktree marked as deleted in state but does not exist in git", "path", wt.Path)
-//			// TODO this panic should be replaced with state fixing underneath
-//			panic("Save state error: state corrupted")
 			s.logger.Debug("save state: git worktree: worktree already deleted. Skipping...", "path", wt.Path)
 			continue
 		}
@@ -228,13 +231,15 @@ func (s *Service) SanitizePath(inputPath string) (string, error) {
 
 	// check if path is valid
 	s.logger.Debug("checking if path exists", "inputPath", inputPath)
-	_, err := os.Stat(inputPath)
-	if err != nil {
-		if os.IsExist(err) {
-			s.logger.Error("Path already exists", "inputPath", inputPath)
-			return "", err
-		}
-	}
+	fileInfo, _ := os.Stat(inputPath)
+
+	// NOTE if path filename returns something -> path exists, so cannot be used. Fail.
+	if fileInfo.Name() != "" {
+		s.logger.Error("Path already exists", "inputPath", inputPath)
+		return "", fmt.Errorf("Path already exists: %s", inputPath)
+	} 
+	
+	// from this point -> path for sure does not exist, so can be returned
 	s.logger.Debug("path is valid", "inputPath", inputPath)
 
 	return inputPath, nil	
