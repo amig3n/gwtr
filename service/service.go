@@ -169,7 +169,7 @@ func (s *Service) SaveState(state worktree.WorktreeState) error {
 			}
 		}
 
-		// if not exists in git and not marked as deleted - panic
+		// if it doesn't exist in git and is marked as deleted, it's already gone - skip
 		if !existsInGit && wt.Deleted {
 			s.logger.Debug("save state: git worktree: worktree already deleted. Skipping...", "path", wt.Path)
 			continue
