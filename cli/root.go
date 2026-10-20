@@ -25,8 +25,7 @@ func (c *CLI) PrepareService(logger *slog.Logger) (*service.Service, error) {
 	gitProvider := git.NewGitShellWrapper(logger)
 	statePath, err := gitProvider.GetRepoRootPath() 
 	if err != nil {
-		logger.Error("Error getting repository root path", "error", err)
-		panic(err)
+		return nil, err
 	}
 
 	stateFilePath := filepath.Join(statePath, "gwtr.json")
@@ -55,7 +54,7 @@ func NewCLI() *CLI {
 		level: level,
 	}
 
-	// initizalize logger with default settings
+	// initialize logger with default settings
 	cli.logger = slog.New(
 		slog.NewTextHandler(
 			log.Writer(), 
