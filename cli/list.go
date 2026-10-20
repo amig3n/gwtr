@@ -12,7 +12,7 @@ func (cli *CLI) addListCmd() *cobra.Command {
 		Short: "List all worktrees",
 		Long:  "List all worktrees in the current git repository.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// init service
+			// prepare service
 			service, err := cli.PrepareService(cli.logger)
 			if err != nil {
 				return err

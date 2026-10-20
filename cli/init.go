@@ -10,7 +10,7 @@ func (cli *CLI) addInitCmd() *cobra.Command {
 		Short: "Initialize GWTR",
 		Long:  "Initialize GWTR by creating a state file and populating it with the current worktrees.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// init service
+			// prepare service
 			service, err := cli.PrepareService(cli.logger)
 			if err != nil {
 				return err

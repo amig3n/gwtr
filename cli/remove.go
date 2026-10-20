@@ -13,7 +13,7 @@ func (cli *CLI) addRemoveCmd() *cobra.Command {
 		Long:  "Remove currently existing worktree based on passed identifier",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// init service
+			// prepare service
 			service, err := cli.PrepareService(cli.logger)
 			if err != nil {
 				return err

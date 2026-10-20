@@ -23,7 +23,7 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 				return err
 			}
 
-			// init service
+			// prepare service
 			service, err := cli.PrepareService(cli.logger)
 			if err != nil {
 				return err
