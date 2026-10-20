@@ -5,20 +5,19 @@ import (
 	"strings"
 	"log/slog"
 	"path"
+	"errors"
 	"github.com/amig3n/gwtr/service"
+	"fmt"
 )
 
 
 // Implements GitProvider interface using git shell commands
-type GitShellWrapper struct {
-	logger *slog.Logger
-}
+type GitShellWrapper struct {}
 
 func NewGitShellWrapper(logger *slog.Logger) *GitShellWrapper {
-	return &GitShellWrapper{
-		logger: logger,
-	}
+	return &GitShellWrapper{}
 }
+
 // ANCHOR helper function: parsing porcelain output from git
 func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 	// parse the output to slice of strings
@@ -62,20 +61,23 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 
 // ANCHOR helper function: getting repository root path
 func (wrp *GitShellWrapper) GetRepoRootPath() (string, error) {
-	wrp.logger.Debug("Getting repository root path")
 	var rootPath string
+
 	rootPathBytes, err := exec.Command("git", "rev-parse", "--path-format=absolute", "--git-common-dir").Output()
 	if err != nil {
-		wrp.logger.Error(
-			"Failed to get repository root path",
-			"error", err,
-		)
+		var exitError *exec.ExitError
+
+		if errors.As(err, &exitError) {
+			if exitError.ExitCode() == 128 {
+				return "", errors.New("not a git repository")
+			}
+		}
+
 		return "", err
 	}
 
+	// trim the output to get clear path
 	rootPath = strings.TrimSpace(string(rootPathBytes))
-
-	wrp.logger.Debug("Repository root path retrieved successfully", "rootPath", rootPath)
 	return rootPath, nil
 }
 
@@ -88,33 +90,21 @@ func (wrp *GitShellWrapper) ListWorktrees() ([]service.GitWorktree, error) {
 		return nil, err
 	}
 
-	wrp.logger.Debug("Git worktree list output", "output", string(output))
-
 	// parse the porcelain output to slice of GitWorktree
-	wrp.logger.Debug("Parsing porcelain output")
 	worktrees, err := parsePorcelainOutput(output)
 	if err != nil {
-		wrp.logger.Error("Failed to parse porcelain output", "error", err)
+		
 		return nil, err
 	}
-
-	wrp.logger.Debug("Parsed worktrees", "worktrees", worktrees)
 
 	return worktrees, nil
 }
 
 func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
-	// execute git worktree add command by adding new branch
-	wrp.logger.Debug("Adding worktree", "branch", branch, "newWtPath", wtPath)
-
 	// determine if path is absolute or relative, if relative, convert to absolute
 	if !path.IsAbs(wtPath) {
 		repoRootPath, err := wrp.GetRepoRootPath()
 		if err != nil {
-			wrp.logger.Error(
-				"Failed to get repository root path",
-				"error", err,
-			)
 			return err
 		}
 
@@ -126,46 +116,34 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 
 	// TODO check if given branch already exists, and throw error if so
 	checkBranchCmd := exec.Command("git", "show-ref", "--heads", branch, "--quiet")
-	wrp.logger.Debug("Checking if branch exists", "command", checkBranchCmd.String())
+	
 	branchNotExist := checkBranchCmd.Run()
 
 	// check if branch already exists, if so - add worktree without creating new branch
 	if branchNotExist == nil {
-		wrp.logger.Debug("Branch already exists, adding worktree without creating new branch", "branch", branch)
+		
 		cmd = exec.Command("git", "worktree", "add", wtPath, branch)
 	} else {
-		wrp.logger.Debug("Branch does not exist, adding worktree and creating new branch", "branch", branch)
+		
 		cmd = exec.Command("git", "worktree", "add", "-b", branch, wtPath)
 	}
 
-	wrp.logger.Debug("Executing command", "command", cmd.String())
-
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		wrp.logger.Error(
-			"Git worktree add command failed", 
-			"error", err, 
-			"output", string(output),
-		)
-		return err
+		return fmt.Errorf("failed to add worktree: %v, output: %s", err, string(output))
 	}
 
 	return nil
 }
 
 func (wrp *GitShellWrapper) DeleteWorktree(wtPath string) error {
-	wrp.logger.Debug("Deleting worktree", "path", wtPath)
+	
 	// TODO check if given path exists, if not - early fail
 	cmd := exec.Command("git","worktree", "remove", wtPath)
-	wrp.logger.Debug("Executing command", "command" , cmd.String())
-
+	
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		wrp.logger.Error("Git worktree remove command failure",
-			"error", err,
-			"output", string(output),
-		)
-		return err
+		return fmt.Errorf("failed to add worktree: %v, output: %s", err, string(output))
 	}
 
 	return nil
