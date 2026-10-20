@@ -12,13 +12,19 @@ func (cli *CLI) addListCmd() *cobra.Command {
 		Short: "List all worktrees",
 		Long:  "List all worktrees in the current git repository.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// call service to list worktrees
-			wtList, err := cli.service.LoadState()
+			// prepare service
+			service, err := cli.PrepareService(cli.logger)
 			if err != nil {
 				return err
 			}
 
-			headers := []string{"ID", "PATH", "BRANCH", "DELETED"}
+			// call service to list worktrees
+			wtList, err := service.LoadState()
+			if err != nil {
+				return err
+			}
+
+			headers := []string{"ID", "PATH", "BRANCH"}
 
 			// create new table with offset of 2 chars
 			table := output.NewTable(headers, 2)
@@ -31,7 +37,7 @@ func (cli *CLI) addListCmd() *cobra.Command {
 							fmt.Sprintf("%d", index),
 							wt.Path,
 							wt.Branch,
-							fmt.Sprintf("%t", wt.Deleted),
+							//fmt.Sprintf("%t", wt.Deleted),
 						},
 					)
 					if err != nil {

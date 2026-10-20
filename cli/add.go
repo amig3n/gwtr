@@ -23,14 +23,20 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 				return err
 			}
 
+			// prepare service
+			service, err := cli.PrepareService(cli.logger)
+			if err != nil {
+				return err
+			}
+
 			// load state
-			state, err := cli.service.LoadState()
+			state, err := service.LoadState()
 			if err != nil {
 				return err
 			}
 
 			// perform path normalization and validation
-			sanitizedPath, err := cli.service.SanitizePath(path)
+			sanitizedPath, err := service.SanitizePath(path)
 			if err != nil {
 				return err
 			}
@@ -43,7 +49,7 @@ func (cli *CLI) addAddCmd() *cobra.Command {
 			}, true) // entries here can be overriden
 
 			// save state
-			err = cli.service.SaveState(state)
+			err = service.SaveState(state)
 			if err != nil {
 				return err
 			}
