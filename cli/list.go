@@ -24,7 +24,7 @@ func (cli *CLI) addListCmd() *cobra.Command {
 				return err
 			}
 
-			headers := []string{"ID", "PATH", "BRANCH", "DELETED"}
+			headers := []string{"ID", "PATH", "BRANCH"}
 
 			// create new table with offset of 2 chars
 			table := output.NewTable(headers, 2)
@@ -37,7 +37,7 @@ func (cli *CLI) addListCmd() *cobra.Command {
 							fmt.Sprintf("%d", index),
 							wt.Path,
 							wt.Branch,
-							fmt.Sprintf("%t", wt.Deleted),
+							//fmt.Sprintf("%t", wt.Deleted),
 						},
 					)
 					if err != nil {
