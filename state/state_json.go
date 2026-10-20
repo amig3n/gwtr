@@ -4,23 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"log/slog"
+
 	// imports StateStore and RawState from service package to avoid circular dependency
 	"github.com/amig3n/gwtr/service"
 )
 
 type JsonStateStore struct {
 	path string
-	logger *slog.Logger
 }
 
-func NewJsonStateStore(path string, logger *slog.Logger) (*JsonStateStore, error) {
-	
+func NewJsonStateStore(path string) (*JsonStateStore, error) {
 	// TODO check if given path is valid
 
 	return &JsonStateStore{
 		path: path,
-		logger: logger,
 	}, nil
 }
 
