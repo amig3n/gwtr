@@ -1,11 +1,14 @@
 package main
 
-import "github.com/amig3n/gwtr/cli"
+import (
+	"os"
+	"github.com/amig3n/gwtr/cli"
+)
 
 func main() {
 	rootCmd := cli.NewCLI()
 	err := rootCmd.RootCmd.Execute()
 	if err != nil {
-		panic(err)
+		os.Exit(1)
 	}
 }
