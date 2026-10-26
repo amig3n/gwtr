@@ -97,6 +97,7 @@ func (s *Service) InitState() error {
 func (s *Service) LoadState() (worktree.WorktreeState, error) {
 	// TODO potential goroutines here
 
+
 	// NOTE load state from statefile
 	s.logger.Debug("Loading state file")
 	stateFile, err := s.state.Load()

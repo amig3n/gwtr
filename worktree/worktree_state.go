@@ -68,6 +68,7 @@ func (ws *WorktreeState) CleanDeleted() int {
 	stateLength := len(ws.items)
 
 	deletedCount := 0
+
 	// iterate from the end of slice till first non-deleted WT found
 	for i := stateLength - 1; i >= 0; i-- {
 		if ws.items[i].Deleted {

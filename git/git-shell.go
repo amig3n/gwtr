@@ -3,7 +3,6 @@ package git
 import (
 	"os/exec"
 	"strings"
-	"log/slog"
 	"path"
 	"errors"
 	"github.com/amig3n/gwtr/service"
@@ -14,7 +13,7 @@ import (
 // Implements GitProvider interface using git shell commands
 type GitShellWrapper struct {}
 
-func NewGitShellWrapper(logger *slog.Logger) *GitShellWrapper {
+func NewGitShellWrapper() *GitShellWrapper {
 	return &GitShellWrapper{}
 }
 
@@ -69,7 +68,7 @@ func (wrp *GitShellWrapper) GetRepoRootPath() (string, error) {
 
 		if errors.As(err, &exitError) {
 			if exitError.ExitCode() == 128 {
-				return "", errors.New("not a git repository")
+				return "", fmt.Errorf("not a git repository")
 			}
 		}
 
@@ -108,7 +107,7 @@ func (wrp *GitShellWrapper) AddWorktree(branch string, wtPath string) error {
 			return err
 		}
 
-		// this should return absolute path for the worktree
+		// this return absolute path for the worktree
 		wtPath = path.Join(repoRootPath, wtPath)
 	}
 
