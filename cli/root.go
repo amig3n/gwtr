@@ -102,6 +102,7 @@ func NewCLI() *CLI {
 	rootCmd.AddCommand(cli.addInitCmd())
 	rootCmd.AddCommand(cli.addAddCmd())
 	rootCmd.AddCommand(cli.addRemoveCmd())
+	rootCmd.AddCommand(cli.addSwitchCmd())
 
 	// assign prepared command tree to CLI object
 	cli.RootCmd = rootCmd
