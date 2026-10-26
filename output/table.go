@@ -1,9 +1,17 @@
 package output
 
 import (
-	"strings"
 	"fmt"
+	"strings"
+
+	"github.com/acarl005/stripansi"
+	"github.com/mattn/go-runewidth"
 )
+
+func visibleWidth(s string) int {
+	// Strip ANSI escape sequences and calculate the visible width of the string
+	return runewidth.StringWidth(stripansi.Strip(s))
+}
 
 // Note Table represents a table with headers and rows.
 type Table struct {
@@ -44,7 +52,7 @@ func (t *Table) calculateColumnWidth() []int {
 		// iterate cell by cell
 		for colIndex, cell := range row {		
 			// calculate the cell size including offset
-			cellWidth := len(cell) + t.offset
+			cellWidth := visibleWidth(cell) + t.offset
 			if cellWidth > columnWidths[colIndex] {
 				// set the maximum value inside column widths
 				columnWidths[colIndex] = cellWidth
@@ -67,7 +75,7 @@ func (t *Table) Render() {
 		var currentRow []string
 		for colIndex, cell := range row {
 			// calculate the amount of whitspaces for cell	
-			wsAmount := column_widths[colIndex] - len(cell)
+			wsAmount := column_widths[colIndex] - visibleWidth(cell)
 			// prepare the proper amount of whitespace
 			whitespaces := strings.Repeat(" ", wsAmount)
 			// append the whitespaces to cell, and add to prepared row

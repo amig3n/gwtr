@@ -22,7 +22,7 @@ type CLI struct {
 func (c *CLI) PrepareService(logger *slog.Logger) (*service.Service, error) {
 	// init git provider and obtain repo path
 	logger.Debug("Initializing Service")
-	gitProvider := git.NewGitShellWrapper(logger)
+	gitProvider := git.NewGitShellWrapper()
 	statePath, err := gitProvider.GetRepoRootPath() 
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (c *CLI) PrepareService(logger *slog.Logger) (*service.Service, error) {
 	stateFilePath := filepath.Join(statePath, "gwtr.json")
 
 	// init state store
-	stateStore, err := state.NewJsonStateStore(stateFilePath, logger)
+	stateStore, err := state.NewJsonStateStore(stateFilePath)
 	if err != nil {
 		logger.Error("Error initializing state store", "error", err)
 		return nil, err
