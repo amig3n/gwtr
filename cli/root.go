@@ -70,7 +70,7 @@ func NewCLI() *CLI {
 	rootCmd := &cobra.Command{
 		Use:   "gwtr",
 		Short: "GWTR",
-		Long:  "Worktres manager for git. For anybody who works with multiple branches at one time.",
+		Long:  "Worktrees manager for git. For anybody who works with multiple branches at one time.",
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			switch loglevel {

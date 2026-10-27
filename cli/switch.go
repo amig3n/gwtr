@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"strconv"
 	"fmt"
+	"github.com/amig3n/gwtr/worktree"
 )
 
 func (cli *CLI) addSwitchCmd() *cobra.Command {
@@ -25,24 +26,23 @@ func (cli *CLI) addSwitchCmd() *cobra.Command {
 				return err
 			}
 
-			// FIXME handle other identifiers (like branch name)
-			// check if worktree ID is valid
-			id,err := strconv.Atoi(args[0])
-			if err != nil {
-				return fmt.Errorf("invalid worktree ID: %s", args[0])
+			// check if identifier is a number or string
+			var worktree *worktree.Worktree
+			var wtErr error
+
+			if id,err := strconv.Atoi(args[0]); err != nil {
+				// treat as string
+				worktree, wtErr = wtList.GetByString(args[0])
+
+			} else {
+				worktree, wtErr = wtList.GetByID(id)
 			}
 
-			// handle potential errors
-			if (id < 0) {
-				return fmt.Errorf("invalid worktree ID: %s", id)
+			if wtErr != nil {
+				return wtErr
 			}
 
-			if (id >= len(wtList.Items())) {
-				return fmt.Errorf("worktree of given id does not exist: %s", id)
-			}
-
-			// generate cd command based on worktree ID and pass it to user's shell wrapper
-			fmt.Println(wtList.Items()[id].Path)
+			fmt.Println(worktree.Path)
 			return nil
 		},
 	}
