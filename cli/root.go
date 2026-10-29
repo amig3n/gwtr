@@ -97,6 +97,8 @@ func NewCLI() *CLI {
 		"Set the logging level (debug, info, warn, error)",
 	)
 
+	rootCmd.SilenceUsage = true
+
 	// add subcommands
 	rootCmd.AddCommand(cli.addListCmd())
 	rootCmd.AddCommand(cli.addInitCmd())
