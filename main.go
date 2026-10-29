@@ -8,13 +8,20 @@ import (
 func main() {
 	rootCmd := cli.NewCLI()
 
+	// if no arguments are provided, run list command
+	if len(os.Args) == 1 {
+		rootCmd.RootCmd.SetArgs([]string{"list"})
+	}
+
 	// check if the first argument is valid command
 	// if not, prepend switch 
+	// FIXME help and completion commands not working properly with this implementation
 	cmd, _, err := rootCmd.RootCmd.Find(os.Args[1:])
-	if err != nil  || cmd == nil {
+	if err != nil || cmd == nil {
 		args := append([]string{"switch"}, os.Args[1:]...)
 		rootCmd.RootCmd.SetArgs(args)
 	}
+
 
 	err = rootCmd.RootCmd.Execute()
 	if err != nil {
