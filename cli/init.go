@@ -6,11 +6,12 @@ import (
 
 func WrapperScriptContent() string {
 	// TODO: fix up this script
-	return `#!/bin/bash
-gwtr() {
-	result=$(gwtr "$@" || return 1)
-	if  [ "$@[1]" = "switch" ]; then
+	return `gwtr() {
+	result="$(command gwtr "$@")" || return $?
+	if [ -n "$result" ] && [ -d "$result" ]; then
 		cd "$result" || return 1
+	else
+		printf '%s\n' "$result"
 	fi
 
 	return 0
