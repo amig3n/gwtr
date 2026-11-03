@@ -4,7 +4,26 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/amig3n/gwtr/worktree"
 	"strconv"
+	"fmt"
 )
+
+func userConfirm(prompt string) bool {
+	responsePrompt := "yY/nN"	
+	var response string
+
+	for {
+	fmt.Printf("%s [%s]: ", prompt, responsePrompt)	
+		fmt.Scanln(&response)
+		switch response {
+			case "y", "Y":
+				return true
+			case "n", "N":
+				return false
+			default: 
+				continue
+		}
+	}
+}
 
 func (cli *CLI) addRemoveCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -39,19 +58,32 @@ func (cli *CLI) addRemoveCmd() *cobra.Command {
 					return err
 				}
 			}
-
-			// perform deletion
-			worktree.Delete()
 			
-			// save state
-			err = service.SaveState(state)
+			forceFlag, err := cmd.Flags().GetBool("force")
 			if err != nil {
 				return err
 			}
 
+			if forceFlag || userConfirm(
+				fmt.Sprintf("Are you sure you want to delete a worktree %s ?", worktree.Path)) {
+				// perform deletion
+				worktree.Delete()
+				
+				// save state
+				err = service.SaveState(state)
+				if err != nil {
+					return err
+				}
+			} else {
+				fmt.Println("Worktree not deleted")
+			}
+
+
 			return nil
 		},
 	}
+
+	cmd.Flags().BoolP("force", "f", false, "Force deletion without confirmation")
 
 	return cmd
 }
