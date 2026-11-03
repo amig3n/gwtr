@@ -15,17 +15,11 @@ make build
 
 ## Install and init
 First, you need to install required wrapper script, so gwtr could 
-change your working directory within your shell. You can do so by adding the
-following snippet into your shell configuration file (e.g. `~/.bashrc` or `~/.zshrc`):
+change your working directory within your shell. You can do so by running
+following command:
 
 ```bash
-gwtr() {
-    if [ "$1" = "switch" ]; then
-        cd "$(command gwtr switch "$2")" || return 1
-    else
-        command gwtr "$@"
-    fi
-}
+gwtr init --wrapper >> ~/.bashrc # replace path with your shell config file
 ```
 
 Then initialize the gwtr inside your repository:
@@ -42,8 +36,13 @@ gwtr create -p <path> -b <branch>
 
 to switch between worktrees:
 ```bash
-gwtr switch <worktree_ID_number>
+gwtr <worktree identifier> 
+# or 
+gwtr swtich <worktree identifier>
 ```
+
+Worktree identifier can be either worktree ID number, or branch or full WT path
+(more options will be added in the future)
 
 To delete worktree:
 ```bash
