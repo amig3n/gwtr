@@ -1,4 +1,4 @@
-PHONY: test clean
+.PHONY: test build clean
 
 test:
 	@echo "Running tests..."
