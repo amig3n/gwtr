@@ -26,15 +26,15 @@ func (cli *CLI) addSwitchCmd() *cobra.Command {
 				return err
 			}
 
-			// check if identifier is a number or string
 			var worktree *worktree.Worktree
 			var wtErr error
 
+			// verify if the argument is a parsable int
 			if id,err := strconv.Atoi(args[0]); err != nil {
-				// treat as string
+				// non-parsable -> treat as WT name or path
 				worktree, wtErr = wtList.GetByString(args[0])
-
 			} else {
+				// parsable -> treat as wt ID
 				worktree, wtErr = wtList.GetByID(id)
 			}
 
@@ -42,6 +42,7 @@ func (cli *CLI) addSwitchCmd() *cobra.Command {
 				return wtErr
 			}
 
+			// print the path, so it can be passed to wrapper script
 			fmt.Println(worktree.Path)
 			return nil
 		},
