@@ -12,8 +12,10 @@ func userConfirm(prompt string) bool {
 	var response string
 
 	for {
-	fmt.Printf("%s [%s]: ", prompt, responsePrompt)	
-		fmt.Scanln(&response)
+		fmt.Printf("%s [%s]: ", prompt, responsePrompt)
+		if _, err := fmt.Scanln(&response); err != nil {
+			return false
+		}
 		switch response {
 			case "y", "Y":
 				return true
