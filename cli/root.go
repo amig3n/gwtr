@@ -70,7 +70,10 @@ func NewCLI() *CLI {
 	rootCmd := &cobra.Command{
 		Use:   "gwtr",
 		Short: "GWTR",
-		Long:  "Worktres manager for git. For anybody who works with multiple branches at one time.",
+		Long:  "Worktrees manager for git. For anybody who works with multiple branches at one time.",
+		CompletionOptions: cobra.CompletionOptions{
+			DisableDefaultCmd: true,
+		},
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			switch loglevel {
@@ -97,11 +100,14 @@ func NewCLI() *CLI {
 		"Set the logging level (debug, info, warn, error)",
 	)
 
+	rootCmd.SilenceUsage = true
+
 	// add subcommands
 	rootCmd.AddCommand(cli.addListCmd())
 	rootCmd.AddCommand(cli.addInitCmd())
 	rootCmd.AddCommand(cli.addAddCmd())
 	rootCmd.AddCommand(cli.addRemoveCmd())
+	rootCmd.AddCommand(cli.addSwitchCmd())
 
 	// assign prepared command tree to CLI object
 	cli.RootCmd = rootCmd
