@@ -31,7 +31,7 @@ gwtr init
 From this moment you can use `gwtr` command to manage your git worktrees.
 To create a new worktree:
 ```bash 
-gwtr create -p <path> -b <branch>
+gwtr add -p <path> -b <branch>
 ```
 
 to switch between worktrees:
