@@ -32,7 +32,7 @@ func (cli *CLI) addInitCmd() *cobra.Command {
 
 			if wrapperFlag {
 				// only return wrapper script content
-				print(WrapperScriptContent())
+				cmd.Print(WrapperScriptContent())
 
 			} else {
 				// prepare service
