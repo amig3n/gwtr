@@ -11,7 +11,7 @@ func (cli *CLI) addSwitchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "switch",
 		Short: "Switch to a worktree",
-		Long:  "Switch to a worktree from currrent git repo based on provided worktree ID.",
+		Long:  "Switch to a worktree from current git repo based on the provided worktree ID, branch name, or path.",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// prepare service
