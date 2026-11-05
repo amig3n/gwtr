@@ -47,7 +47,6 @@ func TestWorktreeStateReuseIndex(t *testing.T) {
 
 }
 
-
 func TestWorktreeStateClean(t *testing.T) {
 	// prepare state
 	state := NewWorktreeState([]Worktree{})
