@@ -84,7 +84,7 @@ func TestWorktreeStateClean(t *testing.T) {
 	// add a new worktree after cleaning
 	state.Add(Worktree{Path: "path6", Branch: "branch6", Deleted: false}, true)
 
-	// shoould be 3 worktrees still
+	// should be 3 worktrees still
 	if len(state.Items()) != 3 {
 		t.Errorf("Expected 3 worktrees in state after adding new worktree, got %d", len(state.Items()))
 	}
