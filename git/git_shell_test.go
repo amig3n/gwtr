@@ -27,7 +27,7 @@ detached
 	t.Logf("Parsed worktrees: %+v", worktrees)
 
 	if len(worktrees) != 3 {
-		t.Fatalf("Expected 2 worktrees, got %d", len(worktrees))
+		t.Fatalf("Expected 3 worktrees, got %d", len(worktrees))
 	}
 
 	if worktrees[0].Path != "/path/to/worktree1" {
