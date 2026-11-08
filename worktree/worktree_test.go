@@ -47,24 +47,22 @@ func TestWorktreeStateReuseIndex(t *testing.T) {
 
 }
 
-
 func TestWorktreeStateClean(t *testing.T) {
 	// prepare state
-	state := NewWorktreeState([]Worktree{})
+	state := WorktreeState{
+		// prepare 5 dummy worktrees, with 2 last marked as deleted
+		items: []Worktree{
+			Worktree{Path: "path1", Branch: "branch1", Deleted: false},
+			Worktree{Path: "path2", Branch: "branch2", Deleted: true}, // should not be deleted
+			Worktree{Path: "path3", Branch: "branch3", Deleted: false},
+			Worktree{Path: "path4", Branch: "branch4", Deleted: true}, // should be deleted
+			Worktree{Path: "path5", Branch: "branch5", Deleted: true}, // should be deleted
+		},
+	}
 
-	// prepare 5 dummy worktrees, with 2 last marked as deleted
-	wt1 := Worktree{Path: "path1", Branch: "branch1", Deleted: false}
-	wt2 := Worktree{Path: "path2", Branch: "branch2", Deleted: true} // should not be deleted
-	wt3 := Worktree{Path: "path3", Branch: "branch3", Deleted: false}
-	wt4 := Worktree{Path: "path4", Branch: "branch4", Deleted: true} // should be deleted
-	wt5 := Worktree{Path: "path5", Branch: "branch5", Deleted: true} // should be deleted
-
-	// add worktrees to state
-	state.Add(wt1, true)
-	state.Add(wt2, true)
-	state.Add(wt3, true)
-	state.Add(wt4, true)
-	state.Add(wt5, true)
+	if len(state.Items()) != 5 {
+		t.Errorf("Expected 5 worktrees before cleaning, got %d", len(state.Items()))
+	}
 
 	// perform cleaning of deleted worktrees
 	state.CleanDeleted()
@@ -82,7 +80,22 @@ func TestWorktreeStateClean(t *testing.T) {
 			t.Errorf("Expected worktree path '%s', got '%s'", expectedPaths[i], wt.Path)
 		}
 	}
+
+	// add a new worktree after cleaning
+	state.Add(Worktree{Path: "path6", Branch: "branch6", Deleted: false}, true)
+
+	// should be 3 worktrees still
+	if len(state.Items()) != 3 {
+		t.Errorf("Expected 3 worktrees in state after adding new worktree, got %d", len(state.Items()))
+	}
+
+	// should be on index 1
+	if state.Items()[1].Path != "path6" {
+		t.Errorf("Expected worktree at index 1 to be 'path6', got '%s'", state.Items()[1].Path)
+	}
+
+	if state.Items()[1].Branch != "branch6" {
+		t.Errorf("Expected worktree at index 1 to have branch 'branch6', got '%s'", state.Items()[1].Branch)
+	}
 }
 
-
-//TODO implement test for deleted indexes detection

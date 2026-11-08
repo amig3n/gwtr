@@ -48,6 +48,12 @@ func parsePorcelainOutput(output []byte) ([]service.GitWorktree, error) {
 			currentWorktree.Branch = strings.TrimPrefix(line, "branch refs/heads/")
 			inBlock = true
 		}
+
+		// detached head, e.g rebase pending
+		if strings.HasPrefix(line, "detached") {
+			currentWorktree.Branch = "detached"
+			inBlock = true
+		}
 	}
 
 	// close active block if present

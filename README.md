@@ -34,11 +34,18 @@ To create a new worktree:
 gwtr add -p <path> -b <branch>
 ```
 
+To list all currently existing worktrees:
+```bash
+gwtr
+# or
+gwtr list
+```
+
 to switch between worktrees:
 ```bash
 gwtr <worktree identifier> 
 # or 
-gwtr swtich <worktree identifier>
+gwtr switch <worktree identifier>
 ```
 
 Worktree identifier can be either worktree ID number, or branch or full WT path
@@ -46,7 +53,7 @@ Worktree identifier can be either worktree ID number, or branch or full WT path
 
 To delete worktree:
 ```bash
-gwtr delete <worktree_ID_number>
+gwtr remove <worktree_ID_number>
 ```
 
 You can always check the `--help` flag for more info about each command.
